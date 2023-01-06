@@ -34,6 +34,8 @@ else
   DOCKER_COMPOSE := docker-compose --project-name $(DC_PROJECT)
 endif
 
+DIRECT_DOWNLOAD_OSM := ../openmaptiles-tools/bin/download-osm
+
 # Make some operations quieter (e.g. inside the test script)
 ifeq ($(or $(QUIET),$(shell (. .env; echo $${QUIET})))),)
   QUIET_FLAG :=
@@ -343,11 +345,11 @@ stop-db:
 
 .PHONY: list-geofabrik
 list-geofabrik: init-dirs
-	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools download-osm list geofabrik
+	$(DIRECT_DOWNLOAD_OSM) list geofabrik
 
 .PHONY: list-bbbike
 list-bbbike: init-dirs
-	$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools download-osm list bbbike
+	$(DIRECT_DOWNLOAD_OSM) list bbbike
 
 #
 # download, download-geofabrik, download-osmfr, and download-bbbike are handled here
@@ -365,13 +367,13 @@ endif
 ifeq (,$(wildcard $(PBF_FILE)))
  ifeq ($(DIFF_MODE),true)
 	@echo "Downloading $(DOWNLOAD_AREA) with replication support into $(PBF_FILE) and $(IMPOSM_CONFIG_FILE) from $(if $(OSM_SERVER),$(OSM_SERVER),any source)"
-	@$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools download-osm $(OSM_SERVER) "$(DOWNLOAD_AREA)" \
+	@$(DIRECT_DOWNLOAD_OSM) $(OSM_SERVER) "$(DOWNLOAD_AREA)" \
 				--imposm-cfg "$(IMPOSM_CONFIG_FILE)" \
 				--bbox "$(AREA_BBOX_FILE)" \
 				--output "$(PBF_FILE)"
  else
 	@echo "Downloading $(DOWNLOAD_AREA) into $(PBF_FILE) from $(if $(OSM_SERVER),$(OSM_SERVER),any source)"
-	@$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools download-osm $(OSM_SERVER) "$(DOWNLOAD_AREA)" \
+	@$(DIRECT_DOWNLOAD_OSM) $(OSM_SERVER) "$(DOWNLOAD_AREA)" \
 				--bbox "$(AREA_BBOX_FILE)" \
 				--output "$(PBF_FILE)"
  endif
@@ -398,7 +400,7 @@ endif
 generate-bbox-file:
 	@$(assert_area_is_given)
 ifeq (,$(wildcard $(AREA_BBOX_FILE)))
-	@$(DOCKER_COMPOSE) run $(DC_OPTS) openmaptiles-tools download-osm bbox "$(PBF_FILE)" "$(AREA_BBOX_FILE)"
+	@$(DIRECT_DOWNLOAD_OSM) bbox "$(PBF_FILE)" "$(AREA_BBOX_FILE)"
 else
 	@echo "Configuration file $(AREA_BBOX_FILE) already exists, no need to regenerate.  BBOX=$(BBOX)"
 endif
