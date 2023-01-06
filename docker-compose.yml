@@ -56,6 +56,8 @@ services:
       PGPASSWORD: ${PGPASSWORD:-openmaptiles}
       PGPORT: ${PGPORT:-5432}
       MBTILES_FILE: ${MBTILES_FILE}
+      HTTP_PROXY: ${HTTP_PROXY}
+      HTTPS_PROXY: ${HTTPS_PROXY}
     networks:
       - postgres
     volumes:
